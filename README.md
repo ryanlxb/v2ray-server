@@ -23,6 +23,15 @@ Telegram: https://t.me/HiaiFeng <br>
 
 
 # 客户端配置方式
+1、客户端下载
+MACOS（也有非mac版本）
+https://github.com/W-MS/V2RayX-macOS/releases
+Linux
+https://github.com/yanue/V2rayU/releases
+WINDOWS
+https://github.com/2dust/v2rayN/releases
+安卓
+https://github.com/2dust/v2rayNG/releases
 
 <p>2、客户端配置</p>
 <p>节点客户端配置需要手动进行，下面以 V2rayN 为例。

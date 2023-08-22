@@ -6,4 +6,4 @@ cd /opt & git clone https://github.com/ryanlxb/V2ray.git
 
 service docker restart
 
-
+docker-compose up -d
