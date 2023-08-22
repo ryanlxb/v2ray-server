@@ -18,6 +18,7 @@ wao.ijump.top
   服务器执行
   - 第一步：
   - 第二步：
+![](assets/16927114512288.jpg)
 
 
 # 客户端配置方式
@@ -33,7 +34,10 @@ https://github.com/2dust/v2rayNG/releases
 
 2、客户端配置
 V2rayU为例：
-![](assets/16926965216038.jpg)
+![](assets/16927114885040.jpg)
+
+查看log：
+
 
 
 V2rayN为例：
