@@ -1,7 +1,5 @@
-# V2ray for Doprax
-Create By ifeng<br>
-Web Site: https://www.hicairo.com <br>
-Telegram: https://t.me/HiaiFeng <br>
+域名：
+wao.ijump.top
 
 # 简介：
 本项目用于在 Doprax.com 免费服务上部署 V2ray ，采用的方案为 Nginx + WebSocket + VMess/VLess + TLS。速度与 Replit 相比较慢，但是官方宣传不限流量，服务启动后永不停机。
@@ -24,27 +22,23 @@ Telegram: https://t.me/HiaiFeng <br>
 
 # 客户端配置方式
 1、客户端下载
-MACOS（也有非mac版本）
-https://github.com/W-MS/V2RayX-macOS/releases
-Linux
+Linux（包括MAC版本）
 https://github.com/yanue/V2rayU/releases
+
 WINDOWS
 https://github.com/2dust/v2rayN/releases
+
 安卓
 https://github.com/2dust/v2rayNG/releases
 
-<p>2、客户端配置</p>
+2、客户端配置
+V2rayU为例：
+![](assets/16926965216038.jpg)
+
+
+V2rayN为例：
 <p>节点客户端配置需要手动进行，下面以 V2rayN 为例。
 <p>下图为 VMess 配置示意图，请修改标示内容，其他设置与图片中显示一致。</p>
 <img src="https://www.hicairo.com/zb_users/upload/2022/12/202212291672276258394161.webp">
 <p>下图为 VLess 配置示意图，请修改标示内容，其他设置与图片中显示一致。</p>
 <img src="https://www.hicairo.com/zb_users/upload/2022/12/202212291672276274474231.webp">
-
-# 反馈与交流：
-<p>在使用过程中，如果遇到问题，请使用Telegram与我联系。（ https://t.me/HiaiFeng ）</p>
-<p>大家好，Doprax 非常关注用户使用体验。Hemen 先生及他的团队，为 Doprax 社区创建了 Discord 服务，如果您在使用过程中，遇到 Doprax 平台的相关问题或对平台有一些建议，请使用如下链接与官方联系。
-
-Hello everyone! Doprax pays great attention to user experience. Mr. Hemen and his team have created a Discord service for the Doprax community. If you encounter any problems or have any suggestions related to the Doprax platform during use, please contact the official using the link below.
-
-https://discord.gg/pFnGwTuXjk</p>
-
