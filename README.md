@@ -1,5 +1,9 @@
-域名：
+信息：
+`git clone https://github.com/ryanlxb/v2ray-server.git`
 wao.ijump.top
+de04ade9-5a68-2bab-950c-08cd5320ff66
+VMESS_WSPATH /aliyuncom
+VLESS_WSPATH /vless
 
 # 简介：
 本项目用于在 Doprax.com 免费服务上部署 V2ray ，采用的方案为 Nginx + WebSocket + VMess/VLess + TLS。速度与 Replit 相比较慢，但是官方宣传不限流量，服务启动后永不停机。
