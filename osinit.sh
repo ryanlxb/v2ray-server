@@ -3,7 +3,7 @@
 yum install -y git docker docker-compose
 
 cd /opt
-git clone https://github.com/ryanlxb/V2ray.git
+git clone https://github.com/ryanlxb/v2ray-server.git
 
 service docker restart
 
