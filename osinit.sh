@@ -5,6 +5,8 @@ yum install -y git docker docker-compose
 cd /opt
 git clone https://github.com/ryanlxb/v2ray-server.git
 
+systemctl enable docker
+systemctl start docker
 service docker restart
 
 systemctl disable firewalld
