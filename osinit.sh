@@ -9,4 +9,5 @@ service docker restart
 
 systemctl disable firewalld
 
+cd v2ray-server
 docker-compose up -d
