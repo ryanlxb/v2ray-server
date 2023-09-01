@@ -9,6 +9,8 @@ VMESS_WSPATH /aliyuncom
 
 VLESS_WSPATH /vless
 
+PAC：https://github.com/gfwlist/gfwlist
+
 默认 PAC ： https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt
 
 issue 提到：https://raw.githubusercontent.com/Loukky/gfwlist-by-loukky/master/gfwlist.txt
