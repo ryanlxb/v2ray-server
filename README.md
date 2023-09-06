@@ -50,6 +50,12 @@ https://github.com/2dust/v2rayN/releases
 安卓
 https://github.com/2dust/v2rayNG/releases
 
+Iphone（下载ipa）:
+https://github.com/hkjswong/shadowrocket-ipa
+
+通过Apple Configurator，使用电脑远程通过USB进行安装
+
+
 2、客户端配置
 V2rayU为例：
 ![](assets/16927114885040.jpg)
