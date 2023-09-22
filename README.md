@@ -55,6 +55,7 @@ https://github.com/hkjswong/shadowrocket-ipa
 
 通过Apple Configurator，使用电脑远程通过USB进行安装
 
+https://github.com/v2ray/dist
 
 2、客户端配置
 V2rayU为例：
