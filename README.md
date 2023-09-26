@@ -58,6 +58,25 @@ https://github.com/hkjswong/shadowrocket-ipa
 https://github.com/v2ray/dist
 
 2、客户端配置
+
+#### Linux x64 客户端配置方法
+1、下载 ： wget https://raw.githubusercontent.com/v2ray/dist/master/v2ray-linux-64.zip
+
+2、解压缩 ： config.json 为配置文件
+
+3、获取配置：最好的方法是本地通过界面（mac、windows）确认可通后，页面获取配置 贴入/替换 config.json
+
+4、./v2ray  test  检查配置文件是否正确
+
+5、./v2ray run   读取默认 config.json 配置文件，并启动proxy
+
+6、测试：我配置默认http_proxy 1087端口
+  - curl https://google.com   不加代理
+  - curl https://google.com  -x 127.0.0.1:1087   使用proxy 请求
+
+
+
+
 V2rayU为例：
 ![](assets/16927114885040.jpg)
 
