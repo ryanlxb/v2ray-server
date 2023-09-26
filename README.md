@@ -73,11 +73,13 @@ https://github.com/v2ray/dist
 6、测试：我配置默认http_proxy 1087端口
   - curl https://google.com   不加代理
   - curl https://google.com  -x 127.0.0.1:1087   使用proxy 请求
+  - 
 
 
-
+#### Windows 配置方法
 
 V2rayU为例：
+
 ![](assets/16927114885040.jpg)
 
 查看log：
