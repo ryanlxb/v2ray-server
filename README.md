@@ -18,6 +18,11 @@
 
 ![Server搭建截图](assets/16927114512288.jpg)
 
+## 安装
+- 修改 json配置（根据需要）
+- osinit.sh （初始化下OS，通过docker-compose 自行部署）
+- 【或者】自己build  run docker
+
 ## 2.4 费用节省
   可以考虑使用OSS自动编排，配置自动开关机（配置了 docker  --restart=always）;
 
@@ -36,10 +41,9 @@ https://github.com/2dust/v2rayN/releases
 安卓
 https://github.com/2dust/v2rayNG/releases
 
-Iphone（下载ipa）: 不靠谱--安装需要国外苹果账号认证
-https://github.com/hkjswong/shadowrocket-ipa
+Iphone 
+国外苹果账号认证（参考：https://sypai.net/1018.html），下载v2box（免费）
 
-通过Apple Configurator，使用电脑远程通过USB进行安装
 ```
 
 ## 3.2 客户端配置
@@ -83,6 +87,11 @@ V2rayU为例：
 ## 4.1 PAC
 Proxy Auto-Configuration（PAC）是一种用于自动选择代理服务器的网络配置技术
 
+如果使用中想将入某些domian走proxy（PAC模式），“偏好设置” —> "PAC" 加入
+
+# 如 servicenow.i.mercedes-benz.com 走 proxy, 按照以下格式加入。重启v2ray生效
+||servicenow.i.mercedes-benz.com
+
 ```
 PAC：https://github.com/gfwlist/gfwlist
 
@@ -91,6 +100,9 @@ PAC：https://github.com/gfwlist/gfwlist
 issue 提到：https://raw.githubusercontent.com/Loukky/gfwlist-by-loukky/master/gfwlist.txt
 ```
 
+## 4.2 GFW
+访问V2ray Server过程，如果发现请求无法到达Server，可能是被GFW墙了。
+可以考虑使用tailscale（或其它内穿产品）将server 与client放到一个内穿网内，可以解决。
 
 # 5、Secure：
 ## 5.1 quick clone
@@ -100,7 +112,9 @@ git clone https://github.com/ryanlxb/v2ray-server.git
 
 ## 5.2 quick connect
 ```
-ec2-3-1-49-171.ap-southeast-1.compute.amazonaws.com
+公网：ec2-3-1-49-171.ap-southeast-1.compute.amazonaws.com
+
+内网：YOUR_TAILSCALE_IP
 
 de04ade9-5a68-2bab-950c-08cd5320ff66
 
