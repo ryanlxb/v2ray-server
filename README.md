@@ -3,10 +3,10 @@
 
 # 2、服务端快速启动
 ## 2.1 购买云服务器（海外region）
-  - 我用的是aliyun 日本区域，AWS（AWS有免费24个月试用）、Azure（访问openAI可以在azure上开通服务器）都可以；
-  - OS选择：Centos、ubuntu 都可以，我用Centos习惯了；
-  - 不需要购买数据盘，系统盘一般20G足够用了；
-  - 使用aliyun服务器，可以使用"实例启动模版"功能非常好用（IP被封重新拉起instance非常快），另外借助"发送命令/文件(云助手)"将编排的code作为初始化工具也不错；
+  - 我用的是aliyun 新加坡区域，AWS（AWS有免费24个月试用）、Azure（访问openAI可以在azure上开通服务器，测试不如AWS体验好）都可以；
+  - OS选择：Centos、ubuntu 都可以，我用Amazonlinux 默认；
+  - 不需要购买数据盘，系统盘一般20G足够用了（AWS 30G内试用免费）；
+  - 使用aliyun服务器，可以使用"实例启动模版"功能非常好用（IP被封重新拉起instance非常快），另外借助"发送命令/文件(云助手)"将编排的code作为初始化工具也不错；【测试发现aliyun开的外部服务不能使用openAI】
 
 ## 2.2 修改UUID
   - UUID 是v2ray访问过程中身份认证KEY，初始化之前最好修改下，不要使用默认值（被试出来浪费钱）；
