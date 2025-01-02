@@ -66,11 +66,8 @@ V2rayU为例：
 
 ###  3.2.3 Windows客户端配置方法
 
-<p>节点客户端配置需要手动进行，下面以 V2rayN 为例。
-<p>下图为 VMess 配置示意图，请修改标示内容，其他设置与图片中显示一致。</p>
-<img src="https://www.hicairo.com/zb_users/upload/2022/12/202212291672276258394161.webp">
-<p>下图为 VLess 配置示意图，请修改标示内容，其他设置与图片中显示一致。</p>
-<img src="https://www.hicairo.com/zb_users/upload/2022/12/202212291672276274474231.webp">
+与V2rayU 界面类似，直接拿 server 配置导入即可。
+
 
 # 4、参考
 
@@ -79,8 +76,10 @@ Proxy Auto-Configuration（PAC）是一种用于自动选择代理服务器的�
 
 如果使用中想将入某些domian走proxy（PAC模式），“偏好设置” —> "PAC" 加入
 
-# 如 servicenow.i.mercedes-benz.com 走 proxy, 按照以下格式加入。重启v2ray生效
-||servicenow.i.mercedes-benz.com
+# 如 ****.abc.com 走 proxy, 按照以下格式加入。重启v2ray生效
+||abc.com
+或者
+||****.abc.com
 
 ```
 PAC：https://github.com/gfwlist/gfwlist
