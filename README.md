@@ -19,9 +19,16 @@
 ![Server搭建截图](assets/16927114512288.jpg)
 
 ## 安装
-- 修改 json配置（根据需要）
+~~ - 修改 json配置（根据需要）
 - osinit.sh （初始化下OS，通过docker-compose 自行部署）
-- 【或者】自己build  run docker
+- 【或者】自己build  run docker ~~
+
+## 安装（新）
+一键部署：bash <(curl -Ls https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh)
+
+部署完，会有UI 端口。
+
+服务端使用reality 方式，避免server 端口被封。
 
 ## 2.4 费用节省
   可以考虑使用OSS自动编排，配置自动开关机（配置了 docker  --restart=always）;
