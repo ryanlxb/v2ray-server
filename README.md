@@ -73,13 +73,14 @@ V2rayU为例：
 
 ## 4.1 PAC
 Proxy Auto-Configuration（PAC）是一种用于自动选择代理服务器的网络配置技术
-
+```
 如果使用中想将入某些domian走proxy（PAC模式），“偏好设置” —> "PAC" 加入
 
-# 如 ****.abc.com 走 proxy, 按照以下格式加入。重启v2ray生效
+如 ****.abc.com 走 proxy, 按照以下格式加入。重启v2ray生效
 ||abc.com
 或者
 ||****.abc.com
+```
 
 ```
 PAC：https://github.com/gfwlist/gfwlist
