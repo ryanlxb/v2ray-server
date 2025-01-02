@@ -3,35 +3,17 @@
 
 # 2、服务端快速启动
 ## 2.1 购买云服务器（海外region）
-  - 我用的是aliyun 新加坡区域，AWS（AWS有免费24个月试用）、Azure（访问openAI可以在azure上开通服务器，测试不如AWS体验好）都可以；
-  - OS选择：Centos、ubuntu 都可以，我用Amazonlinux 默认；
-  - 不需要购买数据盘，系统盘一般20G足够用了（AWS 30G内试用免费）；
-  - 使用aliyun服务器，可以使用"实例启动模版"功能非常好用（IP被封重新拉起instance非常快），另外借助"发送命令/文件(云助手)"将编排的code作为初始化工具也不错；【测试发现aliyun开的外部服务不能使用openAI】
+  - AWS 海外有24个月的免费credit
+  - 如果是国内服务器，使用YONGGE脚本理论上也是可以使用的（未曾尝试过）
 
-## 2.2 修改UUID
-  - UUID 是v2ray访问过程中身份认证KEY，初始化之前最好修改下，不要使用默认值（被试出来浪费钱）；
 
-## 2.3启动方法（以aliyun 云助手为例，不需要登录服务器）
-  服务器执行
-  - 第一步：制作一个自启动模版（方便反复新建instance）【可选】
-  - 第二步：可将初始化过程放到 云助手，完成自动初始化（key信息已放到 private中）【可选】
-
-![Server搭建截图](assets/16927114512288.jpg)
-
-## 安装
-~~ - 修改 json配置（根据需要）
-- osinit.sh （初始化下OS，通过docker-compose 自行部署）
-- 【或者】自己build  run docker ~~
-
-## 安装（新）
+## 2.2 安装（新）
 一键部署：bash <(curl -Ls https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh)
 
 部署完，会有UI 端口。
 
 服务端使用reality 方式，避免server 端口被封。
 
-## 2.4 费用节省
-  可以考虑使用OSS自动编排，配置自动开关机（配置了 docker  --restart=always）;
 
 # 3、客户端快速配置
 ## 3.1 客户端下载
