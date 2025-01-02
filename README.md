@@ -60,7 +60,8 @@ FoXray
 V2rayU为例：
  - 部署完server，可以直接 cp 配置文件，导入 UI 或 config.json 即可。
 
-![Uploading image.png…]()
+<img width="575" alt="image" src="https://github.com/user-attachments/assets/1bae534e-0de8-45c6-b0fb-c04d8319d776" />
+
 
 
 ###  3.2.3 Windows客户端配置方法
