@@ -54,8 +54,6 @@ FoXray
   - curl https://google.com  -x 127.0.0.1:1087   使用proxy 请求
   - 
 ```
-![Linux启动](assets/16956965003136.jpg)
-
 
 ### 3.2.2 Macos 客户端配置方法
 
