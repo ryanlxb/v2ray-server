@@ -58,8 +58,10 @@ FoXray
 ### 3.2.2 Macos 客户端配置方法
 
 V2rayU为例：
+ - 部署完server，可以直接 cp 配置文件，导入 UI 或 config.json 即可。
 
-![windows](assets/16927114885040.jpg)
+![Uploading image.png…]()
+
 
 ###  3.2.3 Windows客户端配置方法
 
