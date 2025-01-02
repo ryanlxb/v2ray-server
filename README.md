@@ -29,20 +29,20 @@
 # 3、客户端快速配置
 ## 3.1 客户端下载
 ```
-Linux
-https://github.com/v2ray/dist
+Linux（xray 支持 reality，避免反复端口被封的几率）
+https://github.com/XTLS/Xray-core
 
-MAC版本
+MAC版本（UI支持reality）
 https://github.com/yanue/V2rayU/releases
 
-WINDOWS
+WINDOWS（UI支持reality——
 https://github.com/2dust/v2rayN/releases
 
-安卓
+安卓（支持reality）
 https://github.com/2dust/v2rayNG/releases
 
-Iphone 
-国外苹果账号认证（参考：https://sypai.net/1018.html），下载v2box（免费）
+Iphone （翻墙 下载、使用海外账号） 
+FoXray
 
 ```
 
@@ -50,17 +50,15 @@ Iphone
 
 ### 3.2.1 Linux x64 客户端配置方法
 ```
-1、下载 ： wget https://raw.githubusercontent.com/v2ray/dist/master/v2ray-linux-64.zip
+1、下载 ： wget https://github.com/XTLS/Xray-core/releases/download/v25.1.1/Xray-linux-64.zip
 
-2、解压缩 ： config.json 为配置文件
+2、解压缩 ： config.json 为配置文件 **（默认下载无配置文件，可以从UI 复制带reality的配置，如底3条）**
 
 3、获取配置：最好的方法是本地通过界面（mac、windows）确认可通后，页面获取配置 贴入/替换 config.json
 
-4、./v2ray  test  检查配置文件是否正确
+4、./xray  -c  配置文件  
 
-5、./v2ray run   读取默认 config.json 配置文件，并启动proxy
-
-6、测试：我配置默认http_proxy 1087端口
+5、测试：我配置默认http_proxy 1087端口
   - curl https://google.com   不加代理
   - curl https://google.com  -x 127.0.0.1:1087   使用proxy 请求
   - 
