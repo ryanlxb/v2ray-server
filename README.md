@@ -89,23 +89,5 @@ issue 提到：https://raw.githubusercontent.com/Loukky/gfwlist-by-loukky/master
 
 ## 4.2 GFW
 访问V2ray Server过程，如果发现请求无法到达Server，可能是被GFW墙了。
-可以考虑使用tailscale（或其它内穿产品）将server 与client放到一个内穿网内，可以解决。
+可以考虑使用tailscale（或其它内穿产品）将server 与client放到一个内穿网内，可以解决（不是最佳办法，使用reality方式后基本没被封过）。
 
-# 5、Secure：
-## 5.1 quick clone
-```
-git clone https://github.com/ryanlxb/v2ray-server.git
-```
-
-## 5.2 quick connect
-```
-公网：ec2-3-1-49-171.ap-southeast-1.compute.amazonaws.com
-
-内网：YOUR_TAILSCALE_IP
-
-de04ade9-5a68-2bab-950c-08cd5320ff66
-
-VMESS_WSPATH /aliyuncom
-
-VLESS_WSPATH /vless
-```
