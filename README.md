@@ -8,6 +8,7 @@
 
 
 ## 2.2 安装（新）
+参考：https://github.com/yonggekkk/warp-yg
 一键部署：bash <(curl -Ls https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh)
 
 部署完，会有UI 端口。
