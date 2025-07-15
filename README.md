@@ -16,6 +16,10 @@
 
 服务端使用reality 方式，避免server 端口被封。
 
+## 2.3 安装xray ui （新）
+参考：https://github.com/yonggekkk/x-ui-yg
+bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/x-ui-yg/main/install.sh)
+
 
 # 3、客户端快速配置
 ## 3.1 客户端下载
