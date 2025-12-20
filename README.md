@@ -98,3 +98,5 @@ issue 提到：https://raw.githubusercontent.com/Loukky/gfwlist-by-loukky/master
 访问V2ray Server过程，如果发现请求无法到达Server，可能是被GFW墙了。
 可以考虑使用tailscale（或其它内穿产品）将server 与client放到一个内穿网内，可以解决（不是最佳办法，使用reality方式后基本没被封过）。
 
+## 4.3 V2rayU Finger 更换
+<img width="823" height="538" alt="图片" src="https://github.com/user-attachments/assets/a10fea18-1001-4239-b4dd-8eb08a8480a4" />
