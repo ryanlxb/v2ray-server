@@ -79,7 +79,7 @@ http://YOUR_SERVER_IP:13579
 
 ## 客户端配置
 
-脚本执行结束时会打印完整的出站配置块，将其复制到客户端 `config.json` 的 `outbounds` 第一项即可。
+脚本执行结束时会打印一个完整的出站配置 JSON 块，将其替换到客户端 `config.json` 的 `outbounds[0]`（即第一个出站条目）即可。如果是全新的 `config.json`，直接放入 `"outbounds": [ <粘贴在这里> ]`。
 
 ### 客户端下载
 
@@ -188,8 +188,6 @@ V2rayU 中：偏好设置 → Fingerprint
 | 项目 | 作者 | 说明 |
 |---|---|---|
 | [x-ui-yg](https://github.com/yonggekkk/x-ui-yg) | [@yonggekkk](https://github.com/yonggekkk) | 支持 Reality 的 Xray 管理面板 |
-| [warp-yg](https://github.com/yonggekkk/warp-yg) | [@yonggekkk](https://github.com/yonggekkk) | WARP + CFwarp 一键部署脚本 |
 | [Xray-core](https://github.com/XTLS/Xray-core) | [@XTLS](https://github.com/XTLS) | 支持 VLESS + Reality 的核心代理引擎 |
 | [v2fly/v2ray-core](https://github.com/v2fly/v2ray-core) | [@v2fly](https://github.com/v2fly) | V2Ray 原始核心 |
 | [gfwlist](https://github.com/gfwlist/gfwlist) | [@gfwlist](https://github.com/gfwlist) | 社区维护的 GFW 域名列表 |
-| Dockerfile 基础镜像 | [@ifeng / HiaiFeng](https://t.me/HiaiFeng) | 原始 nginx+v2ray Docker 镜像 |

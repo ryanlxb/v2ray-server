@@ -79,7 +79,7 @@ Default credentials: admin / admin  ← change immediately after first login
 
 ## Client Setup
 
-The script prints a complete outbound config block at the end. Copy it into your client's `config.json` as the first entry in `outbounds`.
+The script prints a complete outbound config JSON block at the end. Replace the first entry in your client's `config.json` `outbounds` array with it. For a fresh config, place it as `"outbounds": [ <paste here> ]`.
 
 ### Client Downloads
 
@@ -188,8 +188,6 @@ This project builds on the work of the following open-source authors:
 | Project | Author | Description |
 |---|---|---|
 | [x-ui-yg](https://github.com/yonggekkk/x-ui-yg) | [@yonggekkk](https://github.com/yonggekkk) | Xray panel with Reality support and Web UI |
-| [warp-yg](https://github.com/yonggekkk/warp-yg) | [@yonggekkk](https://github.com/yonggekkk) | WARP + CFwarp one-click deployment |
 | [Xray-core](https://github.com/XTLS/Xray-core) | [@XTLS](https://github.com/XTLS) | Core proxy engine with VLESS + Reality |
 | [v2fly/v2ray-core](https://github.com/v2fly/v2ray-core) | [@v2fly](https://github.com/v2fly) | Original V2Ray core |
 | [gfwlist](https://github.com/gfwlist/gfwlist) | [@gfwlist](https://github.com/gfwlist) | Community-maintained GFW domain list |
-| Dockerfile base | [@ifeng / HiaiFeng](https://t.me/HiaiFeng) | Original nginx+v2ray Docker image |
