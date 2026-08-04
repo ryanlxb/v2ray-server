@@ -1,5 +1,7 @@
 # v2ray-server
 
+[中文文档](./README.zh.md) | English
+
 A one-click setup toolkit for self-hosted VLESS + Reality proxy server on Ubuntu, using Docker and [x-ui-yg](https://github.com/yonggekkk/x-ui-yg) as the management panel.
 
 **Why Reality?** The Reality protocol mimics a real TLS 1.3 handshake to a trusted site (e.g. `www.yahoo.com`), making the proxy traffic indistinguishable from normal HTTPS — significantly reducing the risk of port blocking.
