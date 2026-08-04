@@ -125,8 +125,8 @@ proxies:
 - name: "v2ray"
   type: vmess
   server: YOUR_SERVER_IP
-  port: 12345
-  uuid: de04ade9-5a68-2bab-950c-08cd5320ff66
+  port: 24680
+  uuid: YOUR_UUID
   alterId: 0
   cipher: auto
   # udp: true
