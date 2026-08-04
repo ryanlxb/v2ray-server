@@ -39,10 +39,11 @@ require_root() {
 }
 
 check_ubuntu() {
-    local ver
+    local ver id
     ver=$(. /etc/os-release && echo "$VERSION_ID")
+    id=$(. /etc/os-release && echo "$ID")
     local major="${ver%%.*}"
-    [[ "$ID" == "ubuntu" ]] || error "This script only supports Ubuntu."
+    [[ "$id" == "ubuntu" ]] || error "This script only supports Ubuntu."
     [[ $major -ge 22 && $major -le 26 ]] || \
         error "Supported Ubuntu versions: 22-26. Detected: $ver"
     info "OS: Ubuntu $ver — OK"
