@@ -262,6 +262,11 @@ print_summary() {
     echo -e "  Fingerprint: ${REALITY_FINGERPRINT}"
     echo -e "  Flow:        xtls-rprx-vision"
     echo
+    local vless_url="vless://${UUID}@${server_ip}:${XRAY_PORT}?encryption=none&flow=xtls-rprx-vision&security=reality&sni=${REALITY_SERVER_NAME}&fp=${REALITY_FINGERPRINT}&pbk=${PUBLIC_KEY}&sid=${SHORT_ID}&type=tcp#vless-reality-${server_ip}"
+    echo -e "  Import URL (paste into v2rayN / v2rayNG / V2rayU):"
+    echo
+    echo -e "  ${vless_url}"
+    echo
     echo -e "  Client config (paste as outbounds[0] in config.json):"
     echo
     cat <<CLIENT
