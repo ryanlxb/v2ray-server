@@ -4,29 +4,36 @@
 #
 # What this script does:
 #   1. Validates OS (Ubuntu 22-26)
-#   2. Installs Docker (official repo) + enables on boot
-#   3. Pulls and starts x-ui-yg in Docker (Web UI on port 13579)
+#   2. Installs x-ui-yg directly (no interactive menu)
+#   3. Sets panel port to 13579
 #   4. Pre-seeds a VLESS+Reality inbound on port 24680 via x-ui API
-#   5. Opens UFW ports (13579 UI, 24680 proxy)
-#   6. Prints the connection summary
+#   5. Opens UFW ports if active
+#   6. Prints the connection summary + client config
 #
-# Usage: bash server_init.sh
+# Autostart: x-ui registers a systemd service (x-ui.service) on install.
+#
+# Usage:
+#   curl -fsSL https://raw.githubusercontent.com/ryanlxb/v2ray-server/main/server_init.sh \
+#     -o /tmp/server_init.sh && sudo bash /tmp/server_init.sh
 # =============================================================================
 
 set -euo pipefail
+export DEBIAN_FRONTEND=noninteractive
 
 # ── constants ────────────────────────────────────────────────────────────────
 XRAY_PORT=24680
 UI_PORT=13579
 UI_USER="admin"
-UI_PASS="admin"            # change after first login
-DOCKER_IMAGE="ygkkk/x-ui:latest"
-CONTAINER_NAME="x-ui"
-DATA_DIR="/opt/x-ui"
+UI_PASS="admin"
 
-# Reality target site (publicly trusted TLS 1.3 server to mimic)
 REALITY_SERVER_NAME="www.yahoo.com"
 REALITY_FINGERPRINT="firefox"
+
+XUI_RELEASE_URL="https://github.com/yonggekkk/x-ui-yg/releases/download/xui_yg"
+XUI_INSTALL_SH="https://raw.githubusercontent.com/yonggekkk/x-ui-yg/main/install.sh"
+XUI_BIN="/usr/local/x-ui/x-ui"
+XUI_DIR="/usr/local/x-ui"
+XRAY_BIN=""   # resolved after install
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
@@ -49,77 +56,96 @@ check_ubuntu() {
     info "OS: Ubuntu $ver — OK"
 }
 
-# ── docker ───────────────────────────────────────────────────────────────────
-install_docker() {
-    if command -v docker &>/dev/null; then
-        info "Docker already installed: $(docker --version)"
-        return
+# ── detect CPU arch ───────────────────────────────────────────────────────────
+detect_arch() {
+    local machine
+    machine=$(uname -m)
+    case "$machine" in
+        x86_64)  CPU="amd64" ;;
+        aarch64) CPU="arm64" ;;
+        armv7*)  CPU="armv7" ;;
+        *)       error "Unsupported architecture: $machine" ;;
+    esac
+    info "Architecture: ${machine} → ${CPU}"
+}
+
+# ── install dependencies ──────────────────────────────────────────────────────
+install_deps() {
+    info "Installing dependencies ..."
+    apt-get update -qq
+    apt-get install -y -qq curl wget tar jq cron socat iptables-persistent 2>/dev/null || \
+    apt-get install -y -qq curl wget tar jq cron socat 2>/dev/null || true
+}
+
+# ── install x-ui-yg ──────────────────────────────────────────────────────────
+install_xui() {
+    if [[ -f "${XUI_BIN}" ]]; then
+        info "x-ui already installed — skipping download."
+    else
+        info "Downloading x-ui-yg (${CPU}) ..."
+        cd /usr/local/
+        curl -L --retry 3 --insecure -# \
+            -o "/usr/local/x-ui-linux-${CPU}.tar.gz" \
+            "${XUI_RELEASE_URL}/x-ui-linux-${CPU}.tar.gz"
+
+        info "Extracting ..."
+        tar zxf "/usr/local/x-ui-linux-${CPU}.tar.gz" -C /usr/local/ >/dev/null 2>&1
+        rm -f "/usr/local/x-ui-linux-${CPU}.tar.gz"
+
+        cd "${XUI_DIR}"
+        chmod +x x-ui "bin/xray-linux-${CPU}"
+        cp -f x-ui.service /etc/systemd/system/ >/dev/null 2>&1
+        cd /
+
+        # install x-ui shortcut (same as official script)
+        curl -L --retry 2 --insecure -o /usr/bin/x-ui -s "${XUI_INSTALL_SH}"
+        chmod +x /usr/bin/x-ui
+
+        [[ -f "${XUI_BIN}" ]] || error "x-ui binary not found after install."
+        info "x-ui-yg installed successfully"
     fi
-    info "Installing Docker..."
-    apt-get update -qq
-    apt-get install -y -qq ca-certificates curl gnupg lsb-release
 
-    install -m 0755 -d /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-        | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-    chmod a+r /etc/apt/keyrings/docker.gpg
-
-    echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-      https://download.docker.com/linux/ubuntu \
-      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
-      > /etc/apt/sources.list.d/docker.list
-
-    apt-get update -qq
-    apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-compose-plugin
-    info "Docker installed: $(docker --version)"
+    # resolve xray binary path
+    if [[ -f "${XUI_DIR}/bin/xray-linux-${CPU}" ]]; then
+        XRAY_BIN="${XUI_DIR}/bin/xray-linux-${CPU}"
+    elif [[ -f "${XUI_DIR}/bin/xray" ]]; then
+        XRAY_BIN="${XUI_DIR}/bin/xray"
+    else
+        error "xray binary not found under ${XUI_DIR}/bin/"
+    fi
+    info "xray binary: ${XRAY_BIN}"
 }
 
-enable_docker_autostart() {
-    systemctl enable docker
-    systemctl start docker
-    info "Docker service enabled and started"
+# ── configure panel port ─────────────────────────────────────────────────────
+configure_xui_port() {
+    info "Setting x-ui panel port to ${UI_PORT} ..."
+    "${XUI_BIN}" setting -port "${UI_PORT}" >/dev/null 2>&1
 }
 
-# ── x-ui container ───────────────────────────────────────────────────────────
+# ── start x-ui service ────────────────────────────────────────────────────────
 start_xui() {
-    if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-        warn "Container '${CONTAINER_NAME}' already exists — removing to redeploy."
-        docker rm -f "${CONTAINER_NAME}"
-    fi
-
-    mkdir -p "${DATA_DIR}"
-
-    info "Pulling image ${DOCKER_IMAGE} ..."
-    docker pull "${DOCKER_IMAGE}"
-
-    info "Starting x-ui container..."
-    docker run -d \
-        --name "${CONTAINER_NAME}" \
-        --restart=always \
-        --network=host \
-        -v "${DATA_DIR}:/etc/x-ui" \
-        -v /etc/localtime:/etc/localtime:ro \
-        -e "XRAY_VMESS_AEAD_FORCED=false" \
-        "${DOCKER_IMAGE}"
-
-    info "Container '${CONTAINER_NAME}' started (restart=always → survives reboots)"
+    systemctl daemon-reload
+    systemctl enable x-ui >/dev/null 2>&1
+    systemctl restart x-ui
+    info "x-ui service started (systemctl enable x-ui — survives reboots)"
 }
 
 # ── wait for API ──────────────────────────────────────────────────────────────
 wait_for_api() {
-    local url="http://127.0.0.1:${UI_PORT}/login"
     info "Waiting for x-ui API on port ${UI_PORT} ..."
-    local attempts=0
-    until curl -sf --max-time 3 "${url}" -o /dev/null 2>/dev/null; do
-        ((attempts++))
-        [[ $attempts -ge 30 ]] && error "x-ui did not start within 60s. Check: docker logs ${CONTAINER_NAME}"
+    local i=0
+    while [[ $i -lt 30 ]]; do
+        if curl -s --max-time 3 "http://127.0.0.1:${UI_PORT}/" -o /dev/null 2>/dev/null; then
+            info "x-ui API is up"
+            return 0
+        fi
+        i=$((i + 1))
         sleep 2
     done
-    info "x-ui API is up"
+    error "x-ui did not start within 60s. Check: journalctl -u x-ui -n 50"
 }
 
-# ── login → get session cookie ────────────────────────────────────────────────
+# ── login → session cookie ────────────────────────────────────────────────────
 xui_login() {
     COOKIE_FILE=$(mktemp)
     local resp
@@ -132,39 +158,24 @@ xui_login() {
     info "Logged in to x-ui as '${UI_USER}'"
 }
 
-# ── generate keys ─────────────────────────────────────────────────────────────
+# ── generate Reality keys ─────────────────────────────────────────────────────
 generate_reality_keys() {
-    info "Generating Reality keypair inside container..."
-    # xray x25519 outputs: Private key: ... \n Public key: ...
+    info "Generating Reality keypair ..."
     local output
-    output=$(docker exec "${CONTAINER_NAME}" \
-        /usr/local/x-ui/bin/xray x25519 2>/dev/null || \
-        docker exec "${CONTAINER_NAME}" \
-        /usr/local/xray/xray x25519 2>/dev/null || \
-        docker exec "${CONTAINER_NAME}" \
-        xray x25519 2>/dev/null || true)
-
-    if [[ -z "$output" ]]; then
-        warn "Could not run xray x25519 inside container; generating keys via openssl fallback"
-        # Curve25519 private key via openssl
-        PRIVATE_KEY=$(openssl genpkey -algorithm X25519 2>/dev/null \
-            | openssl pkey -outform DER 2>/dev/null \
-            | tail -c 32 | base64 | tr '+/' '-_' | tr -d '=')
-        PUBLIC_KEY="(run: docker exec ${CONTAINER_NAME} xray x25519 to get real keypair)"
-    else
-        PRIVATE_KEY=$(echo "$output" | grep "Private key:" | awk '{print $3}')
-        PUBLIC_KEY=$(echo  "$output" | grep "Public key:"  | awk '{print $3}')
-    fi
-    info "Reality private key: ${PRIVATE_KEY}"
-    info "Reality public  key: ${PUBLIC_KEY}"
+    output=$("${XRAY_BIN}" x25519 2>/dev/null) || \
+        error "xray x25519 failed — check binary at ${XRAY_BIN}"
+    # xray-core format:    "Private key: xxx"  / "Public key: xxx"
+    # x-ui-yg xray format: "PrivateKey: xxx"   / "Password (PublicKey): xxx"
+    PRIVATE_KEY=$(echo "$output" | grep -i "private" | awk '{print $NF}')
+    PUBLIC_KEY=$(echo  "$output" | grep -i "public"  | awk '{print $NF}')
+    [[ -n "$PRIVATE_KEY" && -n "$PUBLIC_KEY" ]] || error "Failed to parse Reality keypair from: $output"
+    info "Reality public key: ${PUBLIC_KEY}"
 }
 
-# ── shortId (8 hex chars) ─────────────────────────────────────────────────────
 generate_short_id() {
-    SHORT_ID=$(cat /dev/urandom | tr -dc 'a-f0-9' | fold -w 8 | head -n 1)
+    SHORT_ID=$(od -An -N4 -tx1 /dev/urandom | tr -d ' \n')
 }
 
-# ── UUID ──────────────────────────────────────────────────────────────────────
 generate_uuid() {
     UUID=$(cat /proc/sys/kernel/random/uuid)
     info "UUID: ${UUID}"
@@ -172,66 +183,30 @@ generate_uuid() {
 
 # ── add inbound via API ───────────────────────────────────────────────────────
 add_inbound() {
-    local settings stream_settings sniff
+    local payload resp
 
-    settings=$(cat <<JSON
-{
-  "clients": [{
-    "id": "${UUID}",
-    "flow": "xtls-rprx-vision",
-    "level": 0,
-    "email": "default@xui"
-  }],
-  "decryption": "none",
-  "fallbacks": []
-}
-JSON
-)
+    # x-ui-yg API expects settings/streamSettings/sniffing as JSON-encoded strings
+    # Use jq to properly escape nested JSON into strings
+    local settings stream sniff
+    settings=$(jq -nc \
+        --arg uuid "${UUID}" \
+        '{"clients":[{"id":$uuid,"flow":"xtls-rprx-vision","level":0,"email":"default@xui"}],"decryption":"none","fallbacks":[]}')
+    stream=$(jq -nc \
+        --arg dest "${REALITY_SERVER_NAME}:443" \
+        --arg sni  "${REALITY_SERVER_NAME}" \
+        --arg priv "${PRIVATE_KEY}" \
+        --arg sid  "${SHORT_ID}" \
+        '{"network":"tcp","security":"reality","realitySettings":{"show":false,"dest":$dest,"xver":0,"serverNames":[$sni],"privateKey":$priv,"shortIds":[$sid]},"tcpSettings":{"header":{"type":"none"}}}')
+    sniff='{"enabled":true,"destOverride":["http","tls","quic"],"metadataOnly":false}'
 
-    stream_settings=$(cat <<JSON
-{
-  "network": "tcp",
-  "security": "reality",
-  "realitySettings": {
-    "show": false,
-    "dest": "${REALITY_SERVER_NAME}:443",
-    "xver": 0,
-    "serverNames": ["${REALITY_SERVER_NAME}"],
-    "privateKey": "${PRIVATE_KEY}",
-    "shortIds": ["${SHORT_ID}"]
-  },
-  "tcpSettings": {
-    "header": { "type": "none" }
-  }
-}
-JSON
-)
+    payload=$(jq -nc \
+        --arg  remark "vless-reality-${XRAY_PORT}" \
+        --argjson port   "${XRAY_PORT}" \
+        --arg  settings  "${settings}" \
+        --arg  stream    "${stream}" \
+        --arg  sniff     "${sniff}" \
+        '{"remark":$remark,"enable":true,"protocol":"vless","listen":"","port":$port,"settings":$settings,"streamSettings":$stream,"sniffing":$sniff}')
 
-    sniff=$(cat <<JSON
-{
-  "enabled": true,
-  "destOverride": ["http", "tls", "quic"],
-  "metadataOnly": false
-}
-JSON
-)
-
-    local payload
-    payload=$(cat <<JSON
-{
-  "remark": "vless-reality-${XRAY_PORT}",
-  "enable": true,
-  "protocol": "vless",
-  "listen": "",
-  "port": ${XRAY_PORT},
-  "settings": $(echo "$settings" | tr -d '\n'),
-  "streamSettings": $(echo "$stream_settings" | tr -d '\n'),
-  "sniffing": $(echo "$sniff" | tr -d '\n')
-}
-JSON
-)
-
-    local resp
     resp=$(curl -sf -b "${COOKIE_FILE}" \
         -X POST "http://127.0.0.1:${UI_PORT}/xui/inbound/add" \
         -H "Content-Type: application/json" \
@@ -241,9 +216,8 @@ JSON
         info "VLESS+Reality inbound created on port ${XRAY_PORT}"
     else
         warn "API add-inbound response: ${resp}"
-        warn "Inbound may already exist, or check x-ui logs: docker logs ${CONTAINER_NAME}"
+        warn "Inbound may already exist — verify via Web UI"
     fi
-
     rm -f "${COOKIE_FILE}"
 }
 
@@ -253,8 +227,8 @@ configure_ufw() {
         warn "ufw not found — skipping firewall configuration"
         return
     fi
-    if ! ufw status | grep -q "Status: active"; then
-        warn "ufw is inactive — skipping (enable manually with: ufw enable)"
+    if ! ufw status 2>/dev/null | grep -q "Status: active"; then
+        warn "ufw is inactive — skipping (enable manually: ufw enable)"
         return
     fi
     ufw allow "${UI_PORT}/tcp"   comment "x-ui web UI"
@@ -266,8 +240,8 @@ configure_ufw() {
 # ── summary ───────────────────────────────────────────────────────────────────
 print_summary() {
     local server_ip
-    server_ip=$(curl -sf --max-time 5 https://api.ipify.org || \
-                curl -sf --max-time 5 https://ifconfig.me || \
+    server_ip=$(curl -sf --max-time 5 https://api.ipify.org 2>/dev/null || \
+                curl -sf --max-time 5 https://ifconfig.me 2>/dev/null || \
                 hostname -I | awk '{print $1}')
 
     echo
@@ -276,7 +250,7 @@ print_summary() {
     echo -e "${GREEN}════════════════════════════════════════════════════════${NC}"
     echo
     echo -e "  Web UI:      http://${server_ip}:${UI_PORT}"
-    echo -e "  UI Login:    ${UI_USER} / ${UI_PASS}  ← change this immediately!"
+    echo -e "  UI Login:    ${UI_USER} / ${UI_PASS}  ← change immediately!"
     echo
     echo -e "  Protocol:    VLESS + Reality (TCP)"
     echo -e "  Server IP:   ${server_ip}"
@@ -288,7 +262,7 @@ print_summary() {
     echo -e "  Fingerprint: ${REALITY_FINGERPRINT}"
     echo -e "  Flow:        xtls-rprx-vision"
     echo
-    echo -e "  Client config (paste into your v2ray/xray config.json):"
+    echo -e "  Client config (paste as outbounds[0] in config.json):"
     echo
     cat <<CLIENT
 {
@@ -322,9 +296,9 @@ CLIENT
     echo
     echo -e "${GREEN}════════════════════════════════════════════════════════${NC}"
     echo
-    echo -e "  Autostart:   docker restart=always + systemctl enable docker"
-    echo -e "  Logs:        docker logs ${CONTAINER_NAME} -f"
-    echo -e "  Restart:     docker restart ${CONTAINER_NAME}"
+    echo -e "  Autostart:   systemctl enable x-ui (already configured)"
+    echo -e "  Logs:        journalctl -u x-ui -f"
+    echo -e "  Restart:     systemctl restart x-ui"
     echo
 }
 
@@ -332,8 +306,10 @@ CLIENT
 main() {
     require_root
     check_ubuntu
-    install_docker
-    enable_docker_autostart
+    detect_arch
+    install_deps
+    install_xui
+    configure_xui_port
     start_xui
     wait_for_api
     xui_login
