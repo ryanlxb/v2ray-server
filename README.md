@@ -8,6 +8,17 @@ A one-click setup toolkit for self-hosted VLESS + Reality proxy server on Ubuntu
 
 ---
 
+## Disclaimer
+
+This project is intended **for personal learning, research, and accessing technical resources** (documentation, open-source repositories, academic papers, etc.) only.
+
+- For use on your own servers and devices only
+- Must comply with the laws and regulations of your country and region
+- Must not be used for any illegal activities, commercial resale, or providing proxy services to third parties
+- The author assumes no liability for any misuse
+
+---
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
