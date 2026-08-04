@@ -1,7 +1,0 @@
-vless://YOUR_UUID@YOUR_SERVER_IP:24680?encryption=none&security=reality&type=tcp&sni=www.yahoo.com&fp=firefox&pbk=YOUR_PUBLIC_KEY&sid=YOUR_SHORT_ID#vless-reality
-
-# Replace placeholders with actual values from server_init.sh output:
-#   YOUR_UUID       - UUID generated during setup
-#   YOUR_SERVER_IP  - Your server's public IP address
-#   YOUR_PUBLIC_KEY - Reality public key
-#   YOUR_SHORT_ID   - Reality short ID

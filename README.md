@@ -1,111 +1,111 @@
 # v2ray-server
 
-[中文文档](./README.zh.md) | English
+中文文档 | [English](./README.en.md)
 
-A one-click setup toolkit for self-hosted VLESS + Reality proxy server on Ubuntu, using Docker and [x-ui-yg](https://github.com/yonggekkk/x-ui-yg) as the management panel.
+基于 Docker 和 [x-ui-yg](https://github.com/yonggekkk/x-ui-yg) 管理面板，一键在 Ubuntu 上部署 VLESS + Reality 自建代理服务器。
 
-**Why Reality?** The Reality protocol mimics a real TLS 1.3 handshake to a trusted site (e.g. `www.yahoo.com`), making the proxy traffic indistinguishable from normal HTTPS — significantly reducing the risk of port blocking.
-
----
-
-## Disclaimer
-
-This project is intended **for personal learning, research, and accessing technical resources** (documentation, open-source repositories, academic papers, etc.) only. The open internet is a window to the world's most advanced knowledge — use it to learn, build, and grow.
-
-- For use on your own servers and devices only
-- Must comply with the laws and regulations of your country and region
-- Must not be used for any illegal activities, commercial resale, or providing proxy services to third parties
-- The author assumes no liability for any misuse
+**为什么选择 Reality？** Reality 协议通过模拟对可信站点（如 `www.yahoo.com`）的真实 TLS 1.3 握手，使代理流量与正常 HTTPS 流量无异，大幅降低端口被封的风险。
 
 ---
 
-## Table of Contents
+## 免责声明
 
-- [Prerequisites](#prerequisites)
-- [Quick Start — Server](#quick-start--server)
-- [Client Setup](#client-setup)
+本项目仅供**个人学习、研究及访问技术资源**（技术文档、开源仓库、学术论文等）使用。互联网是获取全球先进知识的窗口，善加利用，学习先进技术，提升自我。
+
+- 仅限在自己的服务器和设备上使用
+- 必须遵守所在国家和地区的法律法规
+- 不得用于任何违法活动、商业转售或向第三方提供代理服务
+- 因不当使用造成的任何后果由使用者自行承担，作者不负任何责任
+
+---
+
+## 目录
+
+- [前提条件](#前提条件)
+- [服务端一键部署](#服务端一键部署)
+- [客户端配置](#客户端配置)
   - [Linux](#linux-x64)
   - [macOS](#macos)
   - [Windows](#windows)
   - [Android](#android)
   - [iOS](#ios)
-- [Advanced](#advanced)
-  - [PAC Rules](#pac-rules)
-  - [If the server gets blocked](#if-the-server-gets-blocked)
-  - [Changing the TLS Fingerprint](#changing-the-tls-fingerprint)
-- [Credits](#credits)
+- [进阶使用](#进阶使用)
+  - [PAC 分流规则](#pac-分流规则)
+  - [服务器被封怎么办](#服务器被封怎么办)
+  - [修改 TLS 指纹](#修改-tls-指纹)
+- [致谢](#致谢)
 
 ---
 
-## Prerequisites
+## 前提条件
 
-- An overseas VPS (AWS, DigitalOcean, Vultr, etc.) running **Ubuntu 22 / 24 / 26**
-- Root or sudo access
-- Ports **24680** (proxy) and **13579** (Web UI) open in your cloud provider's security group / firewall
+- 一台**境外 VPS**（AWS、DigitalOcean、Vultr 等），系统为 **Ubuntu 22 / 24 / 26**
+- root 或 sudo 权限
+- 在云服务商控制台的安全组 / 防火墙中开放端口 **24680**（代理）和 **13579**（Web UI）
 
-> AWS Free Tier offers 12 months of t2/t3.micro in overseas regions — sufficient for personal use.
+> AWS 海外区域提供 12 个月的 t2/t3.micro 免费套餐，个人使用完全够用。
 
 ---
 
-## Quick Start — Server
+## 服务端一键部署
 
-SSH into your server and run:
+SSH 登录服务器后执行：
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/ryanlxb/v2ray-server/main/server_init.sh)
 ```
 
-The script will:
+脚本将自动完成以下步骤：
 
-1. Validate Ubuntu version (22–26)
-2. Install Docker from the official apt repository
-3. Enable Docker on boot (`systemctl enable docker`)
-4. Pull and start the **x-ui-yg** container with `--restart=always`
-5. Generate a Reality keypair (private key, public key, short ID) and a UUID
-6. Pre-seed a **VLESS + Reality** inbound on port **24680** via the x-ui API
-7. Open UFW ports 13579 and 24680 (if ufw is active)
-8. Print a ready-to-use client config JSON
+1. 检查 Ubuntu 版本（22–26）
+2. 从官方 apt 源安装 Docker
+3. 配置 Docker 开机自启（`systemctl enable docker`）
+4. 拉取并启动 **x-ui-yg** 容器（`--restart=always`）
+5. 生成 Reality 密钥对（私钥、公钥、Short ID）和 UUID
+6. 通过 x-ui API 预置一个 **VLESS + Reality** 入站，监听端口 **24680**
+7. 开放 UFW 端口 13579 和 24680（如果 ufw 已启用）
+8. 打印可直接使用的客户端配置 JSON
 
-After the script finishes, access the Web UI at:
+脚本执行完成后，访问 Web 管理面板：
 
 ```
 http://YOUR_SERVER_IP:13579
-Default credentials: admin / admin  ← change immediately after first login
+默认账号密码：admin / admin  ← 首次登录后请立即修改！
 ```
 
-**Autostart guarantee:** `systemctl enable docker` + `--restart=always` ensures the service survives server reboots without any manual intervention.
+**自启动保障：** `systemctl enable docker` + `--restart=always` 双重保障，服务器重启后无需任何手动操作，服务自动恢复。
 
 ---
 
-## Client Setup
+## 客户端配置
 
-The script prints a complete outbound config block at the end. Copy it into your client's `config.json` as the first entry in `outbounds`.
+脚本执行结束时会打印完整的出站配置块，将其复制到客户端 `config.json` 的 `outbounds` 第一项即可。
 
-### Client Downloads
+### 客户端下载
 
-| Platform | Client | Reality Support |
+| 平台 | 客户端 | 支持 Reality |
 |---|---|---|
-| Linux | [Xray-core](https://github.com/XTLS/Xray-core) | Yes |
-| macOS | [V2rayU](https://github.com/yanue/V2rayU/releases) | Yes |
-| Windows | [v2rayN](https://github.com/2dust/v2rayN/releases) | Yes |
-| Android | [v2rayNG](https://github.com/2dust/v2rayNG/releases) | Yes |
-| iOS | FoXray (App Store — requires overseas Apple ID) | Yes |
+| Linux | [Xray-core](https://github.com/XTLS/Xray-core) | 是 |
+| macOS | [V2rayU](https://github.com/yanue/V2rayU/releases) | 是 |
+| Windows | [v2rayN](https://github.com/2dust/v2rayN/releases) | 是 |
+| Android | [v2rayNG](https://github.com/2dust/v2rayNG/releases) | 是 |
+| iOS | FoXray（App Store，需境外 Apple ID） | 是 |
 
 ---
 
 ### Linux x64
 
 ```bash
-# 1. Download Xray-core
+# 1. 下载 Xray-core
 wget https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
 unzip Xray-linux-64.zip
 
-# 2. Paste the client config printed by server_init.sh into config.json
+# 2. 将 server_init.sh 打印的客户端配置粘贴到 config.json
 
-# 3. Run
+# 3. 启动
 ./xray -c config.json
 
-# 4. Test (default HTTP proxy port 1087)
+# 4. 测试（默认 HTTP 代理端口 1087）
 curl https://www.google.com -x 127.0.0.1:1087
 ```
 
@@ -113,83 +113,83 @@ curl https://www.google.com -x 127.0.0.1:1087
 
 ### macOS
 
-Using **V2rayU**:
+以 **V2rayU** 为例：
 
-1. Run `server_init.sh` on the server and copy the printed config JSON
-2. In V2rayU → Preferences → Import config, paste the JSON
-3. Or replace `config.json` directly and restart
+1. 在服务器执行 `server_init.sh`，复制末尾打印的配置 JSON
+2. V2rayU → 偏好设置 → 导入配置，粘贴 JSON
+3. 或直接替换 `config.json` 后重启
 
-<img width="575" alt="V2rayU config screenshot" src="https://github.com/user-attachments/assets/1bae534e-0de8-45c6-b0fb-c04d8319d776" />
+<img width="575" alt="V2rayU 配置截图" src="https://github.com/user-attachments/assets/1bae534e-0de8-45c6-b0fb-c04d8319d776" />
 
 ---
 
 ### Windows
 
-Using **v2rayN** — same flow as macOS: import the config JSON from the server output.
+使用 **v2rayN**，操作与 macOS 相同：导入服务器输出的配置 JSON。
 
 ---
 
 ### Android
 
-Using **v2rayNG** — import via QR code or manual JSON entry.
+使用 **v2rayNG**，通过二维码或手动填写 JSON 导入配置。
 
 ---
 
 ### iOS
 
-**FoXray** (App Store). Requires an overseas Apple ID to download. Import the VLESS+Reality link from the server output.
+**FoXray**（App Store），需境外 Apple ID 下载。从服务器输出中复制 VLESS+Reality 链接导入。
 
 ---
 
-## Advanced
+## 进阶使用
 
-### PAC Rules
+### PAC 分流规则
 
-PAC (Proxy Auto-Configuration) lets you selectively route specific domains through the proxy.
+PAC（代理自动配置）可让特定域名走代理，其余流量直连。
 
-In V2rayU → Preferences → PAC, add entries like:
+在 V2rayU → 偏好设置 → PAC 中添加规则：
 
 ```
-||example.com        # route all of example.com through proxy
-||sub.example.com    # route a specific subdomain
+||example.com        # example.com 全域名走代理
+||sub.example.com    # 仅指定子域名走代理
 ```
 
-Restart V2ray after saving. Recommended PAC list:
+保存后重启 V2ray 生效。推荐 PAC 列表：
 
-- Default GFW list: `https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt`
-- Alternative: `https://raw.githubusercontent.com/Loukky/gfwlist-by-loukky/master/gfwlist.txt`
-
----
-
-### If the server gets blocked
-
-With Reality, outright port blocking is rare. If it does happen:
-
-- Change the `serverName` in the Reality config to another globally trusted TLS 1.3 domain
-- Rotate the Reality keypair and short ID via the x-ui Web UI
-- As a last resort, use [Tailscale](https://tailscale.com) or another overlay network to bypass the block entirely
+- 默认 GFW 列表：`https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt`
+- 备用列表：`https://raw.githubusercontent.com/Loukky/gfwlist-by-loukky/master/gfwlist.txt`
 
 ---
 
-### Changing the TLS Fingerprint
+### 服务器被封怎么办
 
-If you experience connection issues, try changing the `fingerprint` field in the client config (`chrome`, `firefox`, `safari`, `ios`, `android`, `edge`, `360`, `qq`, `random`).
+使用 Reality 后被直接封端口的情况很少见。若真的发生：
 
-In V2rayU: Preferences → Fingerprint
-
-<img width="823" height="538" alt="V2rayU fingerprint settings" src="https://github.com/user-attachments/assets/a10fea18-1001-4239-b4dd-8eb08a8480a4" />
+- 在 x-ui Web UI 中更换 Reality 配置的 `serverName`，换一个全球可信的 TLS 1.3 域名
+- 重新生成 Reality 密钥对和 Short ID
+- 极端情况下，可使用 [Tailscale](https://tailscale.com) 等内网穿透工具绕过封锁
 
 ---
 
-## Credits
+### 修改 TLS 指纹
 
-This project builds on the work of the following open-source authors:
+若遇到连接问题，可尝试修改客户端配置中的 `fingerprint` 字段（可选值：`chrome`、`firefox`、`safari`、`ios`、`android`、`edge`、`360`、`qq`、`random`）。
 
-| Project | Author | Description |
+V2rayU 中：偏好设置 → Fingerprint
+
+<img width="823" height="538" alt="V2rayU 指纹设置" src="https://github.com/user-attachments/assets/a10fea18-1001-4239-b4dd-8eb08a8480a4" />
+
+---
+
+## 致谢
+
+本项目基于以下开源作者的工作构建：
+
+| 项目 | 作者 | 说明 |
 |---|---|---|
-| [x-ui-yg](https://github.com/yonggekkk/x-ui-yg) | [@yonggekkk](https://github.com/yonggekkk) | Xray panel with Reality support and Web UI |
-| [warp-yg](https://github.com/yonggekkk/warp-yg) | [@yonggekkk](https://github.com/yonggekkk) | WARP + CFwarp one-click deployment |
-| [Xray-core](https://github.com/XTLS/Xray-core) | [@XTLS](https://github.com/XTLS) | Core proxy engine with VLESS + Reality |
-| [v2fly/v2ray-core](https://github.com/v2fly/v2ray-core) | [@v2fly](https://github.com/v2fly) | Original V2Ray core |
-| [gfwlist](https://github.com/gfwlist/gfwlist) | [@gfwlist](https://github.com/gfwlist) | Community-maintained GFW domain list |
-| Dockerfile base | [@ifeng / HiaiFeng](https://t.me/HiaiFeng) | Original nginx+v2ray Docker image |
+| [x-ui-yg](https://github.com/yonggekkk/x-ui-yg) | [@yonggekkk](https://github.com/yonggekkk) | 支持 Reality 的 Xray 管理面板 |
+| [warp-yg](https://github.com/yonggekkk/warp-yg) | [@yonggekkk](https://github.com/yonggekkk) | WARP + CFwarp 一键部署脚本 |
+| [Xray-core](https://github.com/XTLS/Xray-core) | [@XTLS](https://github.com/XTLS) | 支持 VLESS + Reality 的核心代理引擎 |
+| [v2fly/v2ray-core](https://github.com/v2fly/v2ray-core) | [@v2fly](https://github.com/v2fly) | V2Ray 原始核心 |
+| [gfwlist](https://github.com/gfwlist/gfwlist) | [@gfwlist](https://github.com/gfwlist) | 社区维护的 GFW 域名列表 |
+| Dockerfile 基础镜像 | [@ifeng / HiaiFeng](https://t.me/HiaiFeng) | 原始 nginx+v2ray Docker 镜像 |
