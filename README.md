@@ -52,19 +52,20 @@
 SSH 登录服务器后执行：
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/ryanlxb/v2ray-server/main/server_init.sh)
+curl -fsSL https://raw.githubusercontent.com/ryanlxb/v2ray-server/main/server_init.sh \
+  -o /tmp/server_init.sh && sudo bash /tmp/server_init.sh
 ```
 
 脚本将自动完成以下步骤：
 
 1. 检查 Ubuntu 版本（22–26）
-2. 从官方 apt 源安装 Docker
-3. 配置 Docker 开机自启（`systemctl enable docker`）
-4. 拉取并启动 **x-ui-yg** 容器（`--restart=always`）
+2. 安装必要依赖（curl、jq、socat 等）
+3. 从 GitHub Releases 下载并安装 **x-ui-yg**（含 xray-core）
+4. 设置面板端口为 **13579**，注册 systemd 服务并开机自启
 5. 生成 Reality 密钥对（私钥、公钥、Short ID）和 UUID
 6. 通过 x-ui API 预置一个 **VLESS + Reality** 入站，监听端口 **24680**
 7. 开放 UFW 端口 13579 和 24680（如果 ufw 已启用）
-8. 打印可直接使用的客户端配置 JSON
+8. 打印 **导入 URL** 和完整**客户端配置 JSON**，可直接复制使用
 
 脚本执行完成后，访问 Web 管理面板：
 
@@ -73,7 +74,7 @@ http://YOUR_SERVER_IP:13579
 默认账号密码：admin / admin  ← 首次登录后请立即修改！
 ```
 
-**自启动保障：** `systemctl enable docker` + `--restart=always` 双重保障，服务器重启后无需任何手动操作，服务自动恢复。
+**自启动保障：** x-ui-yg 安装时自动注册 systemd service，`systemctl enable x-ui` 已配置，服务器重启后无需任何手动操作，服务自动恢复。
 
 ---
 

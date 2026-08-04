@@ -52,19 +52,20 @@ This project is intended **for personal learning, research, and accessing techni
 SSH into your server and run:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/ryanlxb/v2ray-server/main/server_init.sh)
+curl -fsSL https://raw.githubusercontent.com/ryanlxb/v2ray-server/main/server_init.sh \
+  -o /tmp/server_init.sh && sudo bash /tmp/server_init.sh
 ```
 
 The script will:
 
 1. Validate Ubuntu version (22–26)
-2. Install Docker from the official apt repository
-3. Enable Docker on boot (`systemctl enable docker`)
-4. Pull and start the **x-ui-yg** container with `--restart=always`
+2. Install required dependencies (curl, jq, socat, etc.)
+3. Download and install **x-ui-yg** from GitHub Releases (includes xray-core)
+4. Set panel port to **13579**, register and enable systemd service
 5. Generate a Reality keypair (private key, public key, short ID) and a UUID
 6. Pre-seed a **VLESS + Reality** inbound on port **24680** via the x-ui API
 7. Open UFW ports 13579 and 24680 (if ufw is active)
-8. Print a ready-to-use client config JSON
+8. Print a ready-to-use **import URL** and full **client config JSON**
 
 After the script finishes, access the Web UI at:
 
@@ -73,7 +74,7 @@ http://YOUR_SERVER_IP:13579
 Default credentials: admin / admin  ← change immediately after first login
 ```
 
-**Autostart guarantee:** `systemctl enable docker` + `--restart=always` ensures the service survives server reboots without any manual intervention.
+**Autostart guarantee:** x-ui-yg registers a systemd service on install. `systemctl enable x-ui` is configured automatically — the service survives server reboots without any manual intervention.
 
 ---
 
