@@ -1,102 +1,182 @@
-# 1、简介：
-总结下近期翻墙的一些经验，只看README就行。
+# v2ray-server
 
-# 2、服务端快速启动
-## 2.1 购买云服务器（海外region）
-  - AWS 海外有24个月的免费credit
-  - 如果是国内服务器，使用YONGGE脚本理论上也是可以使用的（未曾尝试过）
+A one-click setup toolkit for self-hosted VLESS + Reality proxy server on Ubuntu, using Docker and [x-ui-yg](https://github.com/yonggekkk/x-ui-yg) as the management panel.
 
+**Why Reality?** The Reality protocol mimics a real TLS 1.3 handshake to a trusted site (e.g. `www.yahoo.com`), making the proxy traffic indistinguishable from normal HTTPS — significantly reducing the risk of port blocking.
 
-## 2.2 安装（新）
-参考：https://github.com/yonggekkk/warp-yg
+---
 
-一键部署：bash <(curl -Ls https://gitlab.com/rwkgyg/CFwarp/raw/main/CFwarp.sh)
+## Table of Contents
 
-部署完，会有UI 端口。
+- [Prerequisites](#prerequisites)
+- [Quick Start — Server](#quick-start--server)
+- [Client Setup](#client-setup)
+  - [Linux](#linux-x64)
+  - [macOS](#macos)
+  - [Windows](#windows)
+  - [Android](#android)
+  - [iOS](#ios)
+- [Advanced](#advanced)
+  - [PAC Rules](#pac-rules)
+  - [If the server gets blocked](#if-the-server-gets-blocked)
+  - [Changing the TLS Fingerprint](#changing-the-tls-fingerprint)
+- [Credits](#credits)
 
-服务端使用reality 方式，避免server 端口被封。
+---
 
-## 2.3 安装xray ui （新）
-参考：https://github.com/yonggekkk/x-ui-yg
-bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/x-ui-yg/main/install.sh)
+## Prerequisites
 
+- An overseas VPS (AWS, DigitalOcean, Vultr, etc.) running **Ubuntu 22 / 24 / 26**
+- Root or sudo access
+- Ports **24680** (proxy) and **13579** (Web UI) open in your cloud provider's security group / firewall
 
-# 3、客户端快速配置
-## 3.1 客户端下载
-```
-Linux（xray 支持 reality，避免反复端口被封的几率）
-https://github.com/XTLS/Xray-core
+> AWS Free Tier offers 12 months of t2/t3.micro in overseas regions — sufficient for personal use.
 
-MAC版本（UI支持reality）
-https://github.com/yanue/V2rayU/releases
+---
 
-WINDOWS（UI支持reality——
-https://github.com/2dust/v2rayN/releases
+## Quick Start — Server
 
-安卓（支持reality）
-https://github.com/2dust/v2rayNG/releases
+SSH into your server and run:
 
-Iphone （翻墙 下载、使用海外账号） 
-FoXray
-
-```
-
-## 3.2 客户端配置
-
-### 3.2.1 Linux x64 客户端配置方法
-```
-1、下载 ： wget https://github.com/XTLS/Xray-core/releases/download/v25.1.1/Xray-linux-64.zip
-
-2、解压缩 ： config.json 为配置文件 **（默认下载无配置文件，可以从UI 复制带reality的配置，如底3条）**
-
-3、获取配置：最好的方法是本地通过界面（mac、windows）确认可通后，页面获取配置 贴入/替换 config.json
-
-4、./xray  -c  配置文件  
-
-5、测试：我配置默认http_proxy 1087端口
-  - curl https://google.com   不加代理
-  - curl https://google.com  -x 127.0.0.1:1087   使用proxy 请求
-  - 
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/ryanlxb/v2ray-server/main/server_init.sh)
 ```
 
-### 3.2.2 Macos 客户端配置方法
+The script will:
 
-V2rayU为例：
- - 部署完server，可以直接 cp 配置文件，导入 UI 或 config.json 即可。
+1. Validate Ubuntu version (22–26)
+2. Install Docker from the official apt repository
+3. Enable Docker on boot (`systemctl enable docker`)
+4. Pull and start the **x-ui-yg** container with `--restart=always`
+5. Generate a Reality keypair (private key, public key, short ID) and a UUID
+6. Pre-seed a **VLESS + Reality** inbound on port **24680** via the x-ui API
+7. Open UFW ports 13579 and 24680 (if ufw is active)
+8. Print a ready-to-use client config JSON
 
-<img width="575" alt="image" src="https://github.com/user-attachments/assets/1bae534e-0de8-45c6-b0fb-c04d8319d776" />
-
-
-
-###  3.2.3 Windows客户端配置方法
-
-与V2rayU 界面类似，直接拿 server 配置导入即可。
-
-
-# 4、参考
-
-## 4.1 PAC
-Proxy Auto-Configuration（PAC）是一种用于自动选择代理服务器的网络配置技术
-```
-如果使用中想将入某些domian走proxy（PAC模式），“偏好设置” —> "PAC" 加入
-
-如 ****.abc.com 走 proxy, 按照以下格式加入。重启v2ray生效
-||abc.com
-或者
-||****.abc.com
-```
+After the script finishes, access the Web UI at:
 
 ```
-PAC：https://github.com/gfwlist/gfwlist
-
-默认 PAC ： https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt
-
-issue 提到：https://raw.githubusercontent.com/Loukky/gfwlist-by-loukky/master/gfwlist.txt
+http://YOUR_SERVER_IP:13579
+Default credentials: admin / admin  ← change immediately after first login
 ```
 
-## 4.2 GFW
-访问V2ray Server过程，如果发现请求无法到达Server，可能是被GFW墙了。
-可以考虑使用tailscale（或其它内穿产品）将server 与client放到一个内穿网内，可以解决（不是最佳办法，使用reality方式后基本没被封过）。
+**Autostart guarantee:** `systemctl enable docker` + `--restart=always` ensures the service survives server reboots without any manual intervention.
 
-## 4.3 V2rayU Finger 更换
-<img width="823" height="538" alt="图片" src="https://github.com/user-attachments/assets/a10fea18-1001-4239-b4dd-8eb08a8480a4" />
+---
+
+## Client Setup
+
+The script prints a complete outbound config block at the end. Copy it into your client's `config.json` as the first entry in `outbounds`.
+
+### Client Downloads
+
+| Platform | Client | Reality Support |
+|---|---|---|
+| Linux | [Xray-core](https://github.com/XTLS/Xray-core) | Yes |
+| macOS | [V2rayU](https://github.com/yanue/V2rayU/releases) | Yes |
+| Windows | [v2rayN](https://github.com/2dust/v2rayN/releases) | Yes |
+| Android | [v2rayNG](https://github.com/2dust/v2rayNG/releases) | Yes |
+| iOS | FoXray (App Store — requires overseas Apple ID) | Yes |
+
+---
+
+### Linux x64
+
+```bash
+# 1. Download Xray-core
+wget https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
+unzip Xray-linux-64.zip
+
+# 2. Paste the client config printed by server_init.sh into config.json
+
+# 3. Run
+./xray -c config.json
+
+# 4. Test (default HTTP proxy port 1087)
+curl https://www.google.com -x 127.0.0.1:1087
+```
+
+---
+
+### macOS
+
+Using **V2rayU**:
+
+1. Run `server_init.sh` on the server and copy the printed config JSON
+2. In V2rayU → Preferences → Import config, paste the JSON
+3. Or replace `config.json` directly and restart
+
+<img width="575" alt="V2rayU config screenshot" src="https://github.com/user-attachments/assets/1bae534e-0de8-45c6-b0fb-c04d8319d776" />
+
+---
+
+### Windows
+
+Using **v2rayN** — same flow as macOS: import the config JSON from the server output.
+
+---
+
+### Android
+
+Using **v2rayNG** — import via QR code or manual JSON entry.
+
+---
+
+### iOS
+
+**FoXray** (App Store). Requires an overseas Apple ID to download. Import the VLESS+Reality link from the server output.
+
+---
+
+## Advanced
+
+### PAC Rules
+
+PAC (Proxy Auto-Configuration) lets you selectively route specific domains through the proxy.
+
+In V2rayU → Preferences → PAC, add entries like:
+
+```
+||example.com        # route all of example.com through proxy
+||sub.example.com    # route a specific subdomain
+```
+
+Restart V2ray after saving. Recommended PAC list:
+
+- Default GFW list: `https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt`
+- Alternative: `https://raw.githubusercontent.com/Loukky/gfwlist-by-loukky/master/gfwlist.txt`
+
+---
+
+### If the server gets blocked
+
+With Reality, outright port blocking is rare. If it does happen:
+
+- Change the `serverName` in the Reality config to another globally trusted TLS 1.3 domain
+- Rotate the Reality keypair and short ID via the x-ui Web UI
+- As a last resort, use [Tailscale](https://tailscale.com) or another overlay network to bypass the block entirely
+
+---
+
+### Changing the TLS Fingerprint
+
+If you experience connection issues, try changing the `fingerprint` field in the client config (`chrome`, `firefox`, `safari`, `ios`, `android`, `edge`, `360`, `qq`, `random`).
+
+In V2rayU: Preferences → Fingerprint
+
+<img width="823" height="538" alt="V2rayU fingerprint settings" src="https://github.com/user-attachments/assets/a10fea18-1001-4239-b4dd-8eb08a8480a4" />
+
+---
+
+## Credits
+
+This project builds on the work of the following open-source authors:
+
+| Project | Author | Description |
+|---|---|---|
+| [x-ui-yg](https://github.com/yonggekkk/x-ui-yg) | [@yonggekkk](https://github.com/yonggekkk) | Xray panel with Reality support and Web UI |
+| [warp-yg](https://github.com/yonggekkk/warp-yg) | [@yonggekkk](https://github.com/yonggekkk) | WARP + CFwarp one-click deployment |
+| [Xray-core](https://github.com/XTLS/Xray-core) | [@XTLS](https://github.com/XTLS) | Core proxy engine with VLESS + Reality |
+| [v2fly/v2ray-core](https://github.com/v2fly/v2ray-core) | [@v2fly](https://github.com/v2fly) | Original V2Ray core |
+| [gfwlist](https://github.com/gfwlist/gfwlist) | [@gfwlist](https://github.com/gfwlist) | Community-maintained GFW domain list |
+| Dockerfile base | [@ifeng / HiaiFeng](https://t.me/HiaiFeng) | Original nginx+v2ray Docker image |
